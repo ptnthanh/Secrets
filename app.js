@@ -4,6 +4,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
+
+
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
@@ -18,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
   secret: 'My little secret.',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false
 }));
 
 app.use(passport.initialize());
@@ -86,6 +88,15 @@ app.post("/login", function(req, res) {
       passport.authenticate("local")(req, res, function() {
         res.redirect("/secrets");
       });
+      if (foundUser) {
+        bcrypt.compare(password, foundUser.password, function(err, result) {
+          if (result === true) {
+            res.render("secrets");
+          }
+        });
+      } else {
+        console.log("Incorrect username");
+      }
     }
   });
 
